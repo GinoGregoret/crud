@@ -10,7 +10,7 @@ app.use(express.json())
 sequelize.sync().then(()=>{
     console.log('db sincronizada')
 })
-app.post('/products', async(req,res)=>{
+app.post('/api/products', async(req,res)=>{
     try{
         const products = await Products.create(req.body)
         res.status(201).json(products)
@@ -18,11 +18,11 @@ app.post('/products', async(req,res)=>{
         res.status(500).json({error: 'error'})
     }
 })
-app.get('/products', async(req,res)=>{
+app.get('/api/products', async(req,res)=>{
     const products = await Products.findAll()
     res.json(products)
 })
-app.get('/products/:id',async(req,res)=>{
+app.get('/api/products/:id',async(req,res)=>{
     const products = await Products.findByPk(req.params.id)
     if(products){
         res.json(products)
@@ -30,7 +30,7 @@ app.get('/products/:id',async(req,res)=>{
         res.status(404).json({error: 'error'})
     }
 })
-app.put('/products/:id', async(req,res)=>{
+app.put('/api/products/:id', async(req,res)=>{
     const products = await Products.findByPk(req.params.id)
     if(products){
         await products.update(req.body)
@@ -39,10 +39,10 @@ app.put('/products/:id', async(req,res)=>{
         res.status(404).json({error: 'error'})
     }
 })
-app.delete('/products/:id', async(req,res)=>{
+app.delete('/api/products/:id', async(req,res)=>{
     const products = await Products.findByPk(req.params.id)
     if(products){
-        await products.delete()
+        await products.destroy()
         res.json({message: 'borrado'})
     }else{
         res.status(404).json({error: 'error'})

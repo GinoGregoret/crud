@@ -1,41 +1,57 @@
-import { useState,useEffect } from "react";
-import { useNavigate,useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-function ProductForm(){
-    const {id} = useParams()
-    const navigate = useNavigate()
-    const isEdit = id !== 'new'
+function ProductForm() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const isEdit = id !== "new";
 
-    const [formData, setFormdata] = useState({
-        name: '',
-        price: '',
-        stock: 0,
-        description: ''
-    })
-    useEffect(()=>{
-        fetch(`/api/products/${id}`)
-        .then((res)=> res.json())
-        .then(formData => setFormdata(formData))
-    },[isEdit, id])
+  const [formData, setFormdata] = useState({
+  name: "",
+  price: "",
+  stock: 0,
+  description: ""
+});
 
-    const handleChange = (e) => {
-        setFormdata({...formData,[e.target.name] : [e.target.value]})
-    }
-    const handleSubmit = async(e) => {
-        e.preventDefault()
-        if(!window.confirm('estas seguro?')) return
-
-        const method = isEdit ? 'PUT' : 'POST'
-        const url = isEdit ? `/api/products/${id}`: '/api/products'
-
-        await fetch(url,{
-            method,
-            headers: {'Content-Type' : 'application/json'},
-            body: JSON.stringify(formData)
+useEffect(() => {
+  if (isEdit) {
+    fetch(`/api/products/${id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Error al cargar producto");
+        return res.json();
+      })
+      .then((data) => setFormdata({
+          name: data.name || "",
+          price: data.price || "",
+          stock: data.stock ?? 0,
+          description: data.description || ""
         })
-        navigate('/')
-    }
-    return(
+      )
+      .catch((err) => console.error("Problema:", err));
+  }
+}, [isEdit, id]);
+
+  const handleChange = (e) => {
+    setFormdata({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!window.confirm("¿Estás seguro?")) return;
+
+    const method = isEdit ? "PUT" : "POST";
+    const url = isEdit ? `/api/products/${id}` : "/api/products";
+
+    await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData)
+    });
+
+    navigate("/");
+  };
+
+  return (
     <div className="container mx-auto p-6 max-w-md">
       <h1 className="text-3xl font-bold mb-6">
         {isEdit ? "Editar Producto" : "Crear Producto"}
@@ -45,7 +61,7 @@ function ProductForm(){
         {[
           { label: "Nombre", name: "name", type: "text" },
           { label: "Precio", name: "price", type: "number", step: "0.01" },
-          { label: "Stock", name: "stock", type: "number" },
+          { label: "Stock", name: "stock", type: "number" }
         ].map(({ label, name, type, step }) => (
           <div key={name}>
             <label className="block mb-2">{label}:</label>
@@ -91,4 +107,5 @@ function ProductForm(){
     </div>
   );
 }
+
 export default ProductForm;
